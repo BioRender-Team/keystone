@@ -72,7 +72,7 @@ cloudinaryimage.prototype.getFolder = function () {
  */
 cloudinaryimage.prototype.addToSchema = function (schema) {
 
-	var cloudinary = require('cloudinary');
+	var cloudinary = require('keystone-cloudinary-s3-proxy');
 
 	var field = this;
 
@@ -326,7 +326,7 @@ cloudinaryimage.prototype.updateItem = function (item, data, files, callback) {
 		files = {};
 	}
 
-	var cloudinary = require('cloudinary');
+	var cloudinary = require('keystone-cloudinary-s3-proxy');
 	var field = this;
 
 	// Prepare values
@@ -420,7 +420,7 @@ cloudinaryimage.prototype.updateItem = function (item, data, files, callback) {
  */
 cloudinaryimage.prototype.getRequestHandler = function (item, req, paths, callback) {
 
-	var cloudinary = require('cloudinary');
+	var cloudinary = require('keystone-cloudinary-s3-proxy');
 	var field = this;
 	if (utils.isFunction(paths)) {
 		callback = paths;
