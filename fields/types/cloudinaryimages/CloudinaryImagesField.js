@@ -49,15 +49,15 @@ module.exports = Field.create({
 		const thumbnails = props.value.map((img, index) => {
 			return this.getThumbnail({
 				value: img,
-				imageSourceSmall: cloudinaryResize(img.public_id, {
+				imageSourceSmall: `${cloudinaryResize(img.public_id, {
 					...RESIZE_DEFAULTS,
 					height: 90,
-				}),
-				imageSourceLarge: cloudinaryResize(img.public_id, {
+				})}#/keystone/api/icons/${img._id}/${props.values.name}.svg`,
+				imageSourceLarge: `${cloudinaryResize(img.public_id, {
 					...RESIZE_DEFAULTS,
 					height: 600,
 					width: 900,
-				}),
+				})}#/keystone/api/icons/${img._id}/${props.values.name}.svg`,
 			}, index);
 		});
 		return { thumbnails, uploadFieldPath };
@@ -220,11 +220,11 @@ module.exports = Field.create({
 		if (!value || !value.length) return;
 
 		const images = value.map(image => ({
-			src: cloudinaryResize(image.public_id, {
+			src: `${cloudinaryResize(image.public_id, {
 				...RESIZE_DEFAULTS,
 				height: 600,
 				width: 900,
-			}),
+			})}#/keystone/api/icons/${image._id}/${this.props.values.name}.svg`,
 		}));
 
 		return (

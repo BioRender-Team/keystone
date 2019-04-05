@@ -92,11 +92,11 @@ module.exports = Field.create({
 		if (this.hasLocal()) {
 			src = this.state.dataUri;
 		} else if (this.hasExisting()) {
-			src = cloudinaryResize(this.props.value.public_id, {
+			src = `${cloudinaryResize(this.props.value.public_id, {
 				crop: 'fit',
 				height: height,
 				format: 'jpg',
-			});
+			})}#${this.props.values.image.url.split('#')[1]}`;
 		}
 
 		return src;
