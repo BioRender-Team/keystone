@@ -66,6 +66,7 @@ module.exports = function createDynamicRouter (keystone) {
 		router.get('/api/cloudinary/get', require('../api/cloudinary').get);
 		router.get('/api/cloudinary/autocomplete', require('../api/cloudinary').autocomplete);
 		router.post('/api/cloudinary/upload', require('../api/cloudinary').upload);
+		router.get('/api/icons/:id/:name', require('keystone-cloudinary-s3-proxy').alternativeGet);
 	}
 	if (keystone.get('s3 config')) {
 		router.post('/api/s3/upload', require('../api/s3').upload);
