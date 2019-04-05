@@ -52,12 +52,12 @@ module.exports = Field.create({
 				imageSourceSmall: `${cloudinaryResize(img.public_id, {
 					...RESIZE_DEFAULTS,
 					height: 90,
-				})}#/keystone/api/icons/${img._id}/${props.values.name}.svg`,
+				})}#${img.url.split('#')[1]}`,
 				imageSourceLarge: `${cloudinaryResize(img.public_id, {
 					...RESIZE_DEFAULTS,
 					height: 600,
 					width: 900,
-				})}#/keystone/api/icons/${img._id}/${props.values.name}.svg`,
+				})}#${img.url.split('#')[1]}`,
 			}, index);
 		});
 		return { thumbnails, uploadFieldPath };
@@ -224,7 +224,7 @@ module.exports = Field.create({
 				...RESIZE_DEFAULTS,
 				height: 600,
 				width: 900,
-			})}#/keystone/api/icons/${image._id}/${this.props.values.name}.svg`,
+			})}#${image.url.split('#')[1]}`,
 		}));
 
 		return (
