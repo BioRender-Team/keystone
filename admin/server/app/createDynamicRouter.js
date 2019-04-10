@@ -2,7 +2,7 @@ var bodyParser = require('body-parser');
 var express = require('express');
 var multer = require('multer');
 
-module.exports = function createDynamicRouter (keystone) {
+module.exports = function createDynamicRouter (keystone, customRoutes = []) {
 
 	// ensure keystone nav has been initialised
 	// TODO: move this elsewhere (on demand generation, or client-side?)
@@ -66,8 +66,10 @@ module.exports = function createDynamicRouter (keystone) {
 		router.get('/api/cloudinary/get', require('../api/cloudinary').get);
 		router.get('/api/cloudinary/autocomplete', require('../api/cloudinary').autocomplete);
 		router.post('/api/cloudinary/upload', require('../api/cloudinary').upload);
-		router.get('/api/icons/:id/:name', require('keystone-cloudinary-s3-proxy').alternativeGet);
 	}
+	customRoutes.forEach((route) => {
+		router[route.type || 'get'](route.route, route.handler);
+	});
 	if (keystone.get('s3 config')) {
 		router.post('/api/s3/upload', require('../api/s3').upload);
 	}
