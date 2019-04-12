@@ -96,7 +96,7 @@ module.exports = Field.create({
 				crop: 'fit',
 				height: height,
 				format: 'jpg',
-			})}#${this.props.values.image.url.split('#')[1]}`;
+			})}#${this.props.value.url.split('#')[1]}`;
 		}
 
 		return src;
