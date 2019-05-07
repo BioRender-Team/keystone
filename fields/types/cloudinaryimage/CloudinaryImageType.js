@@ -440,7 +440,7 @@ cloudinaryimage.prototype.updateItem = function (item, data, files, callback) {
 				filename = sanitize(filename);
 				uploadOptions.public_id = trimSupportedFileExtensions(filename);
 			}
-			cloudinary.uploader.upload(uploadedFile.path, function (result) {
+			cloudinary.uploader.upload(uploadedFile, function (result) {
 				if (result.error) {
 					return callback(result.error);
 				} else {

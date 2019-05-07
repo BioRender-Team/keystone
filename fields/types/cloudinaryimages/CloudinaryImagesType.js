@@ -367,7 +367,7 @@ cloudinaryimages.prototype.updateItem = function (item, data, files, callback) {
 					public_id: value.originalname.substring(0, value.originalname.lastIndexOf('.')),
 				});
 			}
-			cloudinary.uploader.upload(value.path, function (result) {
+			cloudinary.uploader.upload(value, function (result) {
 				if (result.error) {
 					next(result.error);
 				} else {
