@@ -1,4 +1,4 @@
-import { FormInput } from 'elemental';
+import { FormInput } from '../../../admin/client/App/elemental';
 import Field from '../Field';
 import React, { PropTypes } from 'react';
 
@@ -7,7 +7,10 @@ module.exports = Field.create({
 	propTypes: {
 		onChange: PropTypes.func.isRequired,
 		path: PropTypes.string.isRequired,
-		value: PropTypes.number,
+		value: PropTypes.oneOfType([
+			PropTypes.string,
+			PropTypes.number,
+		]),
 	},
 	statics: {
 		type: 'Money',

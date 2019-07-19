@@ -16,12 +16,35 @@ See the [Cloudinary configuration documentation](http://keystonejs.com/docs/conf
 
 ## Options
 
-`publicID` `String`
+`generateFilename` `function; default: random filename`
 
-Name of the field to be used as the Cloudinary image `public_id`.
+Method to generate a public_id in Cloudinary for the uploaded file. Gets passed the `file` data, the attempt number and the callback to call with the filename. Note: Cloudinary supported file extensions will automatically be removed from returned filename.
+  - See [`keystone-storage-namefunctions`](http://npm.im/keystone-storage-namefunctions) for additional filename generators, including content hash filename and original filename. See its source for more information on how to write your own.
 
 ```js
-{ type: Types.CloudinaryImage, publicID: 'slug' }
+{ type: Types.CloudinaryImage, generateFilename: function(file, attemptNumber, callback) {
+    var originalname = file.originalname;
+    var filenameWithoutExtension = originalname.substring(0, originalname.lastIndexOf('.'));
+    var timestamp = new Date().getTime();
+    return `${filenameWithoutExtension}-${timestamp}`;
+  },
+}
+```
+
+`whenExists` `string; default: 'overwrite'`
+
+Specifies what to do when the file exists already. Can be one of `'retry'`, `'error'` or `'overwrite'`.
+
+```js
+{ type: Types.CloudinaryImage, whenExists: 'retry' }
+```
+
+`retryAttempts` `number; default: 3`
+
+If `whenExists` is set to `'retry'`, how many times keystone should try to generate a unique filename before returning an error
+
+```js
+{ type: Types.CloudinaryImage, whenExists: 'retry', retryAttempts: 5 }
 ```
 
 `folder` `String`
@@ -36,7 +59,7 @@ Specifies a custom folder/prefix for the Cloudinary image `public_id` when `clou
 
 `autoCleanup` `Boolean`
 
-When `true`, changes Keystone's default behavior from `remove` (which only removes the Cloudinary image from the database) to `delete` (which removes the image from both the database and Cloudinary storage). Additionally, this option replaces an existing image (if one already exists) during upload.
+When `true`, changes Keystone's default behavior from `remove` (which only removes the Cloudinary image from the database) to `delete` (which removes the image from both the database and Cloudinary storage). Additionally, this option replaces an existing image (if one already exists) during upload. This only occurs on calls to [updateItem](/api/list/update-item)
 
 ```js
 { type: Types.CloudinaryImage, autoCleanup : true }

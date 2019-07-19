@@ -12,7 +12,6 @@ var displayName = require('display-name');
 function name (list, path, options) {
 	this._fixedSize = 'full';
 	options.default = { first: '', last: '' };
-	options.nofilter = true; // TODO: remove this when 0.4 is merged
 	name.super_.call(this, list, path, options);
 }
 name.properName = 'Name';
@@ -28,9 +27,9 @@ util.inherits(name, FieldType);
  */
 name.prototype.addToSchema = function (schema) {
 	var paths = this.paths = {
-		first: this._path.append('.first'),
-		last: this._path.append('.last'),
-		full: this._path.append('.full'),
+		first: this.path + '.first',
+		last: this.path + '.last',
+		full: this.path + '.full',
 	};
 
 	schema.nested[this.path] = true;
@@ -157,11 +156,11 @@ name.prototype.validateRequiredInput = function (item, data, callback) {
 				|| typeof value.last === 'string' && value.last.length)
 			|| (item.get(this.paths.full)
 				|| item.get(this.paths.first)
-				|| item.get(this.paths.last)) && (
-					value === undefined
+				|| item.get(this.paths.last))
+					&& (value === undefined
 					|| (value.first === undefined
 						&& value.last === undefined))
-			) ? true : false;
+		) ? true : false;
 	}
 	utils.defer(callback, result);
 };

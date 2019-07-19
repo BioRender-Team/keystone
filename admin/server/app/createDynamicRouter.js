@@ -1,9 +1,13 @@
 var bodyParser = require('body-parser');
 var express = require('express');
-var multer = require('multer');
 
+<<<<<<< HEAD
 module.exports = function createDynamicRouter (keystone, customRoutes = []) {
+=======
+var uploads = require('../../../lib/uploads');
+>>>>>>> 61fd87d49409ead19a415fc1a973d7cf5a0193cc
 
+module.exports = function createDynamicRouter (keystone) {
 	// ensure keystone nav has been initialised
 	// TODO: move this elsewhere (on demand generation, or client-side?)
 	if (!keystone.nav) {
@@ -18,13 +22,25 @@ module.exports = function createDynamicRouter (keystone, customRoutes = []) {
 	// Use bodyParser and multer to parse request bodies and file uploads
 	router.use(bodyParser.json({}));
 	router.use(bodyParser.urlencoded({ extended: true }));
-	router.use(multer({ includeEmptyFields: true }));
+	uploads.configure(router);
 
 	// Bind the request to the keystone instance
 	router.use(function (req, res, next) {
 		req.keystone = keystone;
 		next();
 	});
+
+	// Pre adminroutes middleware
+	if (typeof keystone.get('pre:adminroutes') === 'function') {
+		keystone.get('pre:adminroutes')(router);
+	}
+	router.use(function (req, res, next) {
+		keystone.callHook('pre:adminroutes', req, res, next);
+	});
+
+	if (keystone.get('healthchecks')) {
+		router.use('/server-health', require('./createHealthchecksHandler')(keystone));
+	}
 
 	// Init API request helpers
 	router.use('/api', require('../middleware/apiError'));
@@ -76,10 +92,6 @@ module.exports = function createDynamicRouter (keystone, customRoutes = []) {
 
 	// #5: Core Lists API
 	var initList = require('../middleware/initList');
-
-	// Legacy API endpoints
-	router.post('/api/legacy/:list/create', initList, require('../api/list/legacyCreate'));
-	router.post('/api/legacy/:list/:id', initList, require('../api/item/legacyUpdate'));
 
 	// lists
 	router.all('/api/counts', require('../api/counts'));

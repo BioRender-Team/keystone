@@ -4,7 +4,12 @@ import { listsByKey } from '../../../admin/client/utils/lists';
 import React from 'react';
 import Select from 'react-select';
 import xhr from 'xhr';
-import { Button, InputGroup } from 'elemental';
+import {
+	Button,
+	FormInput,
+	InlineGroup as Group,
+	InlineGroupSection as Section,
+} from '../../../admin/client/App/elemental';
 import _ from 'lodash';
 
 function compareValues (current, next) {
@@ -18,29 +23,28 @@ function compareValues (current, next) {
 }
 
 module.exports = Field.create({
-
 	displayName: 'RelationshipField',
 	statics: {
 		type: 'Relationship',
 	},
-
 	getInitialState () {
 		return {
 			value: null,
 			createIsOpen: false,
 		};
 	},
-
 	componentDidMount () {
 		this._itemsCache = {};
 		this.loadValue(this.props.value);
+		this.__isMounted = true;
 	},
-
+	componentWillUnmount () {
+		this.__isMounted = false;
+	},
 	componentWillReceiveProps (nextProps) {
 		if (nextProps.value === this.props.value || nextProps.many && compareValues(this.props.value, nextProps.value)) return;
 		this.loadValue(nextProps.value);
 	},
-
 	shouldCollapse () {
 		if (this.props.many) {
 			// many:true relationships have an Array for a value
@@ -48,12 +52,11 @@ module.exports = Field.create({
 		}
 		return this.props.collapse && !this.props.value;
 	},
-
 	buildFilters () {
 		var filters = {};
 
 		_.forEach(this.props.filters, (value, key) => {
-			if (_.isString(value) && value[0] == ':') { // eslint-disable-line eqeqeq
+			if (typeof value === 'string' && value[0] === ':') {
 				var fieldName = value.slice(1);
 
 				var val = this.props.values[fieldName];
@@ -63,7 +66,7 @@ module.exports = Field.create({
 				}
 
 				// check if filtering by id and item was already saved
-				if (fieldName === ':_id' && Keystone.item) {
+				if (fieldName === '_id' && Keystone.item) {
 					filters[key] = Keystone.item.id;
 					return;
 				}
@@ -80,12 +83,10 @@ module.exports = Field.create({
 
 		return parts.join('&');
 	},
-
 	cacheItem (item) {
 		item.href = Keystone.adminPath + '/' + this.props.refList.path + '/' + item.id;
 		this._itemsCache[item.id] = item;
 	},
-
 	loadValue (values) {
 		if (!values) {
 			return this.setState({
@@ -116,14 +117,13 @@ module.exports = Field.create({
 				done(err, data);
 			});
 		}, (err, expanded) => {
-			if (!this.isMounted()) return;
+			if (!this.__isMounted) return;
 			this.setState({
 				loading: false,
 				value: this.props.many ? expanded : expanded[0],
 			});
 		});
 	},
-
 	// NOTE: this seems like the wrong way to add options to the Select
 	loadOptionsCallback: {},
 	loadOptions (input, callback) {
@@ -145,26 +145,22 @@ module.exports = Field.create({
 			});
 		});
 	},
-
 	valueChanged (value) {
 		this.props.onChange({
 			path: this.props.path,
 			value: value,
 		});
 	},
-
 	openCreate () {
 		this.setState({
 			createIsOpen: true,
 		});
 	},
-
 	closeCreate () {
 		this.setState({
 			createIsOpen: false,
 		});
 	},
-
 	onCreate (item) {
 		this.cacheItem(item);
 		if (Array.isArray(this.state.value)) {
@@ -183,23 +179,30 @@ module.exports = Field.create({
 		});
 		this.closeCreate();
 	},
-
 	renderSelect (noedit) {
+		const inputName = this.getInputName(this.props.path);
+		const emptyValueInput = (this.props.many && (!this.state.value || !this.state.value.length) || (!this.props.many && !this.state.value))
+			? <input type="hidden" name={inputName} value="" /> : null;
 		return (
-			<Select.Async
-				multi={this.props.many}
-				disabled={noedit}
-				loadOptions={this.loadOptions}
-				labelKey="name"
-				name={this.getInputName(this.props.path)}
-				onChange={this.valueChanged}
-				simpleValue
-				value={this.state.value}
-				valueKey="id"
-			/>
+			<div>
+				{/* This input ensures that an empty value is submitted when no related items are selected */}
+				{emptyValueInput}
+				{/* This input element fools Safari's autocorrect in certain situations that completely break react-select */}
+				<input type="text" style={{ position: 'absolute', width: 1, height: 1, zIndex: -1, opacity: 0 }} tabIndex="-1"/>
+				<Select.Async
+					multi={this.props.many}
+					disabled={noedit}
+					loadOptions={this.loadOptions}
+					labelKey="name"
+					name={inputName}
+					onChange={this.valueChanged}
+					simpleValue
+					value={this.state.value}
+					valueKey="id"
+				/>
+			</div>
 		);
 	},
-
 	renderInputGroup () {
 		// TODO: find better solution
 		//   when importing the CreateForm using: import CreateForm from '../../../admin/client/App/shared/CreateForm';
@@ -208,26 +211,33 @@ module.exports = Field.create({
 		// TODO: Implement this somewhere higher in the app, it breaks the encapsulation of the RelationshipField component
 		const CreateForm = require('../../../admin/client/App/shared/CreateForm');
 		return (
-			<InputGroup>
-				<InputGroup.Section grow>
+			<Group block>
+				<Section grow>
 					{this.renderSelect()}
-				</InputGroup.Section>
-				<InputGroup.Section>
-					<Button onClick={this.openCreate} type="success">+</Button>
-				</InputGroup.Section>
+				</Section>
+				<Section>
+					<Button onClick={this.openCreate}>+</Button>
+				</Section>
 				<CreateForm
 					list={listsByKey[this.props.refList.key]}
 					isOpen={this.state.createIsOpen}
 					onCreate={this.onCreate}
 					onCancel={this.closeCreate} />
-			</InputGroup>
+			</Group>
 		);
 	},
-
 	renderValue () {
-		return this.renderSelect(true);
-	},
+		const { many } = this.props;
+		const { value } = this.state;
+		const props = {
+			children: value ? value.name : null,
+			component: value ? 'a' : 'span',
+			href: value ? value.href : null,
+			noedit: true,
+		};
 
+		return many ? this.renderSelect(true) : <FormInput {...props} />;
+	},
 	renderField () {
 		if (this.props.createInline) {
 			return this.renderInputGroup();
