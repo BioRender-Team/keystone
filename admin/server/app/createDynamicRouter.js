@@ -1,11 +1,6 @@
 var bodyParser = require('body-parser');
 var express = require('express');
-
-<<<<<<< HEAD
-module.exports = function createDynamicRouter (keystone, customRoutes = []) {
-=======
 var uploads = require('../../../lib/uploads');
->>>>>>> 61fd87d49409ead19a415fc1a973d7cf5a0193cc
 
 module.exports = function createDynamicRouter (keystone) {
 	// ensure keystone nav has been initialised
