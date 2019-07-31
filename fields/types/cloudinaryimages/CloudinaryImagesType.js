@@ -27,22 +27,24 @@ function truthy (value) {
 * Uses a before and after snapshot of the images array to find out what images are no longer included
 */
 function cleanUp (oldValues, newValues) {
-	var cloudinary = require('cloudinary');
-	var oldvalIds = oldValues.map(function (val) {
-		return val.public_id;
-	});
-	var newValIds = newValues.map(function (val) {
-		return val.public_id;
-	});
+	// no-op
 
-	var removedItemsCloudinaryIds = _.difference(oldvalIds, newValIds);
-
-	// We never wait to return on the images being removed
-	async.map(removedItemsCloudinaryIds, function (id, next) {
-		cloudinary.uploader.destroy(id, function (result) {
-			next();
-		});
-	});
+	// var cloudinary = require('cloudinary');
+	// var oldvalIds = oldValues.map(function (val) {
+	// 	return val.public_id;
+	// });
+	// var newValIds = newValues.map(function (val) {
+	// 	return val.public_id;
+	// });
+	//
+	// var removedItemsCloudinaryIds = _.difference(oldvalIds, newValIds);
+	//
+	// // We never wait to return on the images being removed
+	// async.map(removedItemsCloudinaryIds, function (id, next) {
+	// 	cloudinary.uploader.destroy(id, function (result) {
+	// 		next();
+	// 	});
+	// });
 };
 
 /**
