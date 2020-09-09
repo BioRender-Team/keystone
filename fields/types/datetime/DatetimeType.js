@@ -52,6 +52,10 @@ datetime.prototype.getInputFromData = function (data) {
 			combined += ' ' + tzOffsetValue;
 		}
 		return combined;
+	} else if (dateValue !== undefined && timeValue !== undefined) {
+		// when it comes here the dateValue and timeValue are invalid but not undefined
+		// like null, '' or 0
+		return '';
 	}
 
 	return this.getValueFromData(data);
